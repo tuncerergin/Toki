@@ -6,6 +6,7 @@ import com.tuncerergin.toki.entity.Personel;
 import com.tuncerergin.toki.repositories.IzinRepository;
 import com.tuncerergin.toki.repositories.IzinTuruRepository;
 import com.tuncerergin.toki.repositories.PersonelRepository;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -54,6 +55,7 @@ public class PersonelController {
      */
     @GetMapping("/person")
     public String personList(Model model, Principal principal) {
+
         kullanici = personelRepository.findByEmail(principal.getName());
         LocalDate now = java.time.LocalDate.now();
 
@@ -82,6 +84,33 @@ public class PersonelController {
         model.addAttribute("kalanIzin", 21 - kullanilanIzin);
         model.addAttribute("izinler", personel.get().getIzin());
         return "personel/personel";
+
+    }
+
+    @PreAuthorize("hasRole('ROLE_PERSONEL')")
+    @GetMapping("/istatistik")
+    public String istatistik(Model model) {
+
+        kullanilanIzin = 0;
+        Optional<Personel> personel = personelRepository.findById(kullanici.getId());
+        Collection<Izin> izinler = personel.get().getIzin();
+        for (Izin izin : izinler) {
+            //içinde bulunduğumuz yılda onaylanan toplam gün.
+            if (izin.getOnay().equals("e") && izin.getIzinBaslangicTarihi().getYear() == java.time.LocalDate.now().getYear())
+                kullanilanIzin += ChronoUnit.DAYS.between(izin.getIzinBaslangicTarihi(), izin.getIzinBitisTarihi());
+        }
+        LocalDate iseBaslamaTarihi = personel.get().getIseBaslamaTarihi();
+        if (ChronoUnit.DAYS.between(iseBaslamaTarihi, java.time.LocalDate.now()) > 365) {
+            // İşe başlayalı 1 sene oldu. izin kullanabilir
+            model.addAttribute("izinKullanabilir", true);
+        } else {
+            model.addAttribute("izinKullanabilir", false);
+        }
+        model.addAttribute("personel", personel.get());
+        model.addAttribute("kullanilanIzin", kullanilanIzin);
+        model.addAttribute("kalanIzin", 21 - kullanilanIzin);
+        model.addAttribute("izinler", personel.get().getIzin());
+        return "personel/istatistik";
 
     }
 
