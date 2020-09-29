@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "izin")
+@Table(name = "izin", schema = "public", catalog = "toki")
 public class Izin implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -44,6 +44,10 @@ public class Izin implements Serializable {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate onaylanmaTarihi;
 
+    @Column(name = "izinTalepTarihi")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate izinTalepTarihi;
+
     @ToString.Exclude
     @ManyToOne(/*optional = false*/)
     private Personel personel;
@@ -51,4 +55,8 @@ public class Izin implements Serializable {
     @ToString.Exclude
     @OneToOne(/*optional = false*/)
     private Personel onaylayanAmir;
+
+    @ToString.Exclude
+    @OneToOne(/*optional = false*/)
+    private IzinTuru izinTuru;
 }

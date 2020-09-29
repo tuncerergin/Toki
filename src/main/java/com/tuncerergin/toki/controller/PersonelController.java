@@ -1,8 +1,10 @@
 package com.tuncerergin.toki.controller;
 
 import com.tuncerergin.toki.entity.Izin;
+import com.tuncerergin.toki.entity.IzinTuru;
 import com.tuncerergin.toki.entity.Personel;
 import com.tuncerergin.toki.repositories.IzinRepository;
+import com.tuncerergin.toki.repositories.IzinTuruRepository;
 import com.tuncerergin.toki.repositories.PersonelRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,6 +14,7 @@ import java.security.Principal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -31,12 +34,14 @@ import java.util.Optional;
 public class PersonelController {
     private final PersonelRepository personelRepository;
     private final IzinRepository izinRepository;
+    private final IzinTuruRepository izinTuruRepository;
     Personel kullanici;
     int kullanilanIzin = 0;
 
-    public PersonelController(PersonelRepository personelRepository, IzinRepository izinRepository) {
+    public PersonelController(PersonelRepository personelRepository, IzinRepository izinRepository, IzinTuruRepository izinTuruRepository) {
         this.personelRepository = personelRepository;
         this.izinRepository = izinRepository;
+        this.izinTuruRepository = izinTuruRepository;
     }
 
     /**
@@ -55,10 +60,12 @@ public class PersonelController {
         kullanilanIzin = 0;
         Optional<Personel> personel = personelRepository.findById(kullanici.getId());
         Collection<Izin> izinler = personel.get().getIzin();
+
         for (Izin izin : izinler) {
             //içinde bulunduğumuz yılda onaylanan toplam gün.
             if (izin.getOnay().equals("e") && izin.getIzinBaslangicTarihi().getYear() == now.getYear())
                 kullanilanIzin += ChronoUnit.DAYS.between(izin.getIzinBaslangicTarihi(), izin.getIzinBitisTarihi());
+
         }
 
 
@@ -111,6 +118,9 @@ public class PersonelController {
     public String izinTalep(Model model) {
         LocalDate now = java.time.LocalDate.now();
         Izin izin = new Izin();
+        List<IzinTuru> izinTuruList = izinTuruRepository.findAll();
+        model.addAttribute("izinTuruList", izinTuruList);
+
         model.addAttribute("personel", kullanici);
         model.addAttribute("minIzınBaslangic", now);
         model.addAttribute("maxIzinBaslangic", now.getYear() + "-12-31");
@@ -166,9 +176,12 @@ public class PersonelController {
      */
     @PostMapping("/izinKaydet")
     public String izinKaydet(@ModelAttribute("izin") Izin izin) {
+        System.out.println(izin.getIzinTuru());
         izin.setOnaylayanAmir(kullanici.getDepartman().getAmir());
         izin.setPersonel(kullanici);
         izin.setOnay("b");
+        LocalDate now = java.time.LocalDate.now();
+        izin.setIzinTalepTarihi(now);
         izinRepository.save(izin);
         return "redirect:/personel/person";
     }
