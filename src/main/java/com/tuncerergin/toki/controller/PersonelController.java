@@ -40,6 +40,7 @@ public class PersonelController {
     int kullanilanYillikIzin = 0;
     int kullanilanRaporIzin = 0;
     int kullanilanMazeretIzin = 0;
+    int toplamIzin = 0;
 
     public PersonelController(PersonelRepository personelRepository, IzinRepository izinRepository, IzinTuruRepository izinTuruRepository) {
         this.personelRepository = personelRepository;
@@ -62,28 +63,38 @@ public class PersonelController {
         LocalDate now = java.time.LocalDate.now();
 
         kullanilanYillikIzin = 0;
+        kullanilanRaporIzin = 0;
+        kullanilanMazeretIzin = 0;
         Optional<Personel> personel = personelRepository.findById(kullanici.getId());
         Collection<Izin> izinler = personel.get().getIzin();
 
         for (Izin izin : izinler) {
             //içinde bulunduğumuz yılda onaylanan toplam gün.
-            if (izin.getOnay().equals("e") && izin.getIzinBaslangicTarihi().getYear() == now.getYear())
+            if (izin.getIzinTuru().getId() == 1) {
                 kullanilanYillikIzin += ChronoUnit.DAYS.between(izin.getIzinBaslangicTarihi(), izin.getIzinBitisTarihi());
+            } else if (izin.getIzinTuru().getId() == 2) {
+                kullanilanRaporIzin += ChronoUnit.DAYS.between(izin.getIzinBaslangicTarihi(), izin.getIzinBitisTarihi());
+            } else if (izin.getIzinTuru().getId() == 3) {
+                kullanilanMazeretIzin += ChronoUnit.DAYS.between(izin.getIzinBaslangicTarihi(), izin.getIzinBitisTarihi());
+            }
 
         }
 
-
-        LocalDate iseBaslamaTarihi = personel.get().getIseBaslamaTarihi();
-        if (ChronoUnit.DAYS.between(iseBaslamaTarihi, now) > 365) {
-            // İşe başlayalı 1 sene oldu. izin kullanabilir
-            model.addAttribute("izinKullanabilir", true);
+        List<IzinTuru> izinTuruList = izinTuruRepository.findAll();
+        if (ChronoUnit.DAYS.between(personel.get().getIseBaslamaTarihi(), java.time.LocalDate.now()) > 365) {// İşe başlayalı 1 sene oldu. izin kullanabilir
+            for (IzinTuru izinTuru : izinTuruList) {
+                toplamIzin += izinTuru.getIzinMiktari();
+            }
+            if (toplamIzin > (kullanilanYillikIzin + kullanilanMazeretIzin + kullanilanRaporIzin)) {
+                model.addAttribute("izinKullanabilir", true);
+            } else {
+                model.addAttribute("izinKullanabilir", false);
+            }
         } else {
             model.addAttribute("izinKullanabilir", false);
         }
 
         model.addAttribute("personel", personel.get());
-        model.addAttribute("kullanilanIzin", kullanilanYillikIzin);
-        model.addAttribute("kalanIzin", 21 - kullanilanYillikIzin);
         model.addAttribute("izinler", personel.get().getIzin());
         return "personel/personel";
 
@@ -167,18 +178,24 @@ public class PersonelController {
         jsonOnaylanmis.deleteCharAt(jsonOnaylanmis.length() - 1).append("]},");//son virgülü sil
         jsonReddedilmis.deleteCharAt(jsonReddedilmis.length() - 1).append("]},");//son virgülü sil
         json.append(jsonOnayBekleyen).append(jsonOnaylanmis).append(jsonReddedilmis);
-        LocalDate iseBaslamaTarihi = personel.get().getIseBaslamaTarihi();
-        if (ChronoUnit.DAYS.between(iseBaslamaTarihi, java.time.LocalDate.now()) > 365) {
-            // İşe başlayalı 1 sene oldu. izin kullanabilir
-            model.addAttribute("izinKullanabilir", true);
+
+        List<IzinTuru> izinTuruList = izinTuruRepository.findAll();
+
+        if (ChronoUnit.DAYS.between(personel.get().getIseBaslamaTarihi(), java.time.LocalDate.now()) > 365) {// İşe başlayalı 1 sene oldu. izin kullanabilir
+            toplamIzin = 0;
+            for (IzinTuru izinTuru : izinTuruList) {
+                toplamIzin += izinTuru.getIzinMiktari();
+            }
+            if (toplamIzin > (kullanilanYillikIzin + kullanilanMazeretIzin + kullanilanRaporIzin)) {
+                model.addAttribute("izinKullanabilir", true);
+            } else {
+                model.addAttribute("izinKullanabilir", false);
+            }
         } else {
             model.addAttribute("izinKullanabilir", false);
         }
-        List<IzinTuru> izinTuruList = izinTuruRepository.findAll();
-
         model.addAttribute("izinTuruList", izinTuruList);
         model.addAttribute("jsonData", json);
-        System.out.println(json);
         model.addAttribute("personel", personel.get());
         model.addAttribute("kullanilanYillikIzin", kullanilanYillikIzin);
         model.addAttribute("kullanilanMazeretIzin", kullanilanMazeretIzin);
@@ -225,11 +242,13 @@ public class PersonelController {
         List<IzinTuru> izinTuruList = izinTuruRepository.findAll();
         model.addAttribute("izinTuruList", izinTuruList);
 
+
         model.addAttribute("personel", kullanici);
-        model.addAttribute("minIzınBaslangic", now);
+        model.addAttribute("minIzinBaslangic", now);
         model.addAttribute("maxIzinBaslangic", now.getYear() + "-12-31");
-        model.addAttribute("kullanilanIzin", kullanilanYillikIzin);
-        model.addAttribute("kalanIzin", 21 - kullanilanYillikIzin);
+        model.addAttribute("kullanilanYillikIzin", kullanilanYillikIzin);
+        model.addAttribute("kullanilanMazeretIzin", kullanilanMazeretIzin);
+        model.addAttribute("kullanilanRaporIzin", kullanilanRaporIzin);
         model.addAttribute("izin", izin);
         return "personel/izin";
 
