@@ -37,7 +37,9 @@ public class PersonelController {
     private final IzinRepository izinRepository;
     private final IzinTuruRepository izinTuruRepository;
     Personel kullanici;
-    int kullanilanIzin = 0;
+    int kullanilanYillikIzin = 0;
+    int kullanilanRaporIzin = 0;
+    int kullanilanMazeretIzin = 0;
 
     public PersonelController(PersonelRepository personelRepository, IzinRepository izinRepository, IzinTuruRepository izinTuruRepository) {
         this.personelRepository = personelRepository;
@@ -59,14 +61,14 @@ public class PersonelController {
         kullanici = personelRepository.findByEmail(principal.getName());
         LocalDate now = java.time.LocalDate.now();
 
-        kullanilanIzin = 0;
+        kullanilanYillikIzin = 0;
         Optional<Personel> personel = personelRepository.findById(kullanici.getId());
         Collection<Izin> izinler = personel.get().getIzin();
 
         for (Izin izin : izinler) {
             //içinde bulunduğumuz yılda onaylanan toplam gün.
             if (izin.getOnay().equals("e") && izin.getIzinBaslangicTarihi().getYear() == now.getYear())
-                kullanilanIzin += ChronoUnit.DAYS.between(izin.getIzinBaslangicTarihi(), izin.getIzinBitisTarihi());
+                kullanilanYillikIzin += ChronoUnit.DAYS.between(izin.getIzinBaslangicTarihi(), izin.getIzinBitisTarihi());
 
         }
 
@@ -80,8 +82,8 @@ public class PersonelController {
         }
 
         model.addAttribute("personel", personel.get());
-        model.addAttribute("kullanilanIzin", kullanilanIzin);
-        model.addAttribute("kalanIzin", 21 - kullanilanIzin);
+        model.addAttribute("kullanilanIzin", kullanilanYillikIzin);
+        model.addAttribute("kalanIzin", 21 - kullanilanYillikIzin);
         model.addAttribute("izinler", personel.get().getIzin());
         return "personel/personel";
 
@@ -91,14 +93,80 @@ public class PersonelController {
     @GetMapping("/istatistik")
     public String istatistik(Model model) {
 
-        kullanilanIzin = 0;
+        kullanilanYillikIzin = 0;
+        kullanilanRaporIzin = 0;
+        kullanilanMazeretIzin = 0;
         Optional<Personel> personel = personelRepository.findById(kullanici.getId());
         Collection<Izin> izinler = personel.get().getIzin();
+        StringBuilder json = new StringBuilder();
+        StringBuilder jsonOnayBekleyen = new StringBuilder();
+        StringBuilder jsonOnaylanmis = new StringBuilder();
+        StringBuilder jsonReddedilmis = new StringBuilder();
+        jsonOnayBekleyen.append("{ name: '")
+                .append("Onay Bekleyen")
+                .append("', data: [ ");
+        jsonOnaylanmis.append("{ name: '")
+                .append("Onaylanmış")
+                .append("', data: [ ");
+        jsonReddedilmis.append("{ name: '")
+                .append("Reddedilmiş")
+                .append("', data: [ ");
         for (Izin izin : izinler) {
             //içinde bulunduğumuz yılda onaylanan toplam gün.
-            if (izin.getOnay().equals("e") && izin.getIzinBaslangicTarihi().getYear() == java.time.LocalDate.now().getYear())
-                kullanilanIzin += ChronoUnit.DAYS.between(izin.getIzinBaslangicTarihi(), izin.getIzinBitisTarihi());
+            if (izin.getOnay().equals("e") && izin.getIzinBaslangicTarihi().getYear() == java.time.LocalDate.now().getYear()) {
+                if (izin.getIzinTuru().getId() == 1) {
+                    kullanilanYillikIzin += ChronoUnit.DAYS.between(izin.getIzinBaslangicTarihi(), izin.getIzinBitisTarihi());
+                } else if (izin.getIzinTuru().getId() == 2) {
+                    kullanilanRaporIzin += ChronoUnit.DAYS.between(izin.getIzinBaslangicTarihi(), izin.getIzinBitisTarihi());
+                } else if (izin.getIzinTuru().getId() == 3) {
+                    kullanilanMazeretIzin += ChronoUnit.DAYS.between(izin.getIzinBaslangicTarihi(), izin.getIzinBitisTarihi());
+                }
+
+                jsonOnaylanmis.append("{ x: '")
+                        .append(izin.getIzinTuru().getIzinTur())
+                        .append("',").append("y: [ ")
+                        .append("new Date('")
+                        .append(izin.getIzinBaslangicTarihi())
+                        .append("').getTime(),")
+                        .append("new Date('")
+                        .append(izin.getIzinBitisTarihi())
+                        .append("').getTime()")
+                        .append("] ")
+                        .append("},");
+
+
+            } else if (izin.getOnay().equals("h") && izin.getIzinBaslangicTarihi().getYear() == java.time.LocalDate.now().getYear()) {
+                jsonReddedilmis.append("{ x: '")
+                        .append(izin.getIzinTuru().getIzinTur())
+                        .append("',").append("y: [ ")
+                        .append("new Date('")
+                        .append(izin.getIzinBaslangicTarihi())
+                        .append("').getTime(),")
+                        .append("new Date('")
+                        .append(izin.getIzinBitisTarihi())
+                        .append("').getTime()")
+                        .append("]")
+                        .append("},");
+            } else if (izin.getOnay().equals("b") && izin.getIzinBaslangicTarihi().getYear() == java.time.LocalDate.now().getYear()) {
+                jsonOnayBekleyen.append("{ x: '")
+                        .append(izin.getIzinTuru().getIzinTur())
+                        .append("',").append("y: [")
+                        .append("new Date('")
+                        .append(izin.getIzinBaslangicTarihi())
+                        .append("').getTime(),")
+                        .append("new Date('")
+                        .append(izin.getIzinBitisTarihi())
+                        .append("').getTime()")
+                        .append("]")
+                        .append("},");
+            }
+
+
         }
+        jsonOnayBekleyen.deleteCharAt(jsonOnayBekleyen.length() - 1).append("]},");//son virgülü sil
+        jsonOnaylanmis.deleteCharAt(jsonOnaylanmis.length() - 1).append("]},");//son virgülü sil
+        jsonReddedilmis.deleteCharAt(jsonReddedilmis.length() - 1).append("]},");//son virgülü sil
+        json.append(jsonOnayBekleyen).append(jsonOnaylanmis).append(jsonReddedilmis);
         LocalDate iseBaslamaTarihi = personel.get().getIseBaslamaTarihi();
         if (ChronoUnit.DAYS.between(iseBaslamaTarihi, java.time.LocalDate.now()) > 365) {
             // İşe başlayalı 1 sene oldu. izin kullanabilir
@@ -106,9 +174,16 @@ public class PersonelController {
         } else {
             model.addAttribute("izinKullanabilir", false);
         }
+        List<IzinTuru> izinTuruList = izinTuruRepository.findAll();
+
+        model.addAttribute("izinTuruList", izinTuruList);
+        model.addAttribute("jsonData", json);
+        System.out.println(json);
         model.addAttribute("personel", personel.get());
-        model.addAttribute("kullanilanIzin", kullanilanIzin);
-        model.addAttribute("kalanIzin", 21 - kullanilanIzin);
+        model.addAttribute("kullanilanYillikIzin", kullanilanYillikIzin);
+        model.addAttribute("kullanilanMazeretIzin", kullanilanMazeretIzin);
+
+        model.addAttribute("kullanilanRaporIzin", kullanilanRaporIzin);
         model.addAttribute("izinler", personel.get().getIzin());
         return "personel/istatistik";
 
@@ -153,8 +228,8 @@ public class PersonelController {
         model.addAttribute("personel", kullanici);
         model.addAttribute("minIzınBaslangic", now);
         model.addAttribute("maxIzinBaslangic", now.getYear() + "-12-31");
-        model.addAttribute("kullanilanIzin", kullanilanIzin);
-        model.addAttribute("kalanIzin", 21 - kullanilanIzin);
+        model.addAttribute("kullanilanIzin", kullanilanYillikIzin);
+        model.addAttribute("kalanIzin", 21 - kullanilanYillikIzin);
         model.addAttribute("izin", izin);
         return "personel/izin";
 
@@ -174,8 +249,8 @@ public class PersonelController {
         model.addAttribute("minIzınBaslangic", now);
         model.addAttribute("maxIzinBaslangic", now.getYear() + "-12-31");
         model.addAttribute("personel", izin.get().getPersonel());
-        model.addAttribute("kullanilanIzin", kullanilanIzin);
-        model.addAttribute("kalanIzin", 21 - kullanilanIzin);
+        model.addAttribute("kullanilanIzin", kullanilanYillikIzin);
+        model.addAttribute("kalanIzin", 21 - kullanilanYillikIzin);
         model.addAttribute("izin", izin.get());
         return "personel/izin";
 
