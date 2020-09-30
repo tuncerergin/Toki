@@ -70,4 +70,14 @@ public class LoginController {
     public String showAccessDenied() {
         return "access-denied";
     }
+
+    /**
+     * hata ile karşılaşılırsa error sayfası görüntülenir
+     *
+     * @return String yönlendirilecek sayfa ismi
+     */
+    @GetMapping("/error")
+    public String showErrorPage() {
+        return "error";
+    }
 }
