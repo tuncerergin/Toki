@@ -31,8 +31,6 @@ public class LoginController {
      */
     @GetMapping("/")
     public String redirect(Principal principal) {
-
-
         if (principal == null) {
             return "loginPage";
         }

@@ -1,0 +1,64 @@
+{
+  "personel": [
+    {
+      "id": 1,
+      "ad": "Tuncer",
+      "soyad": "Ergin",
+      "tcKimlikNo": "123",
+      "eMail": "tuncer@gmail.com",
+      "dogumTarihi": "01.01.1990",
+      "iseBaslamaTarihi": "01.01.2020",
+      "gorev": "Yazılımcı",
+      "departman": 1,
+      "sifre": "123"
+    },
+    {
+      "id": 2,
+      "ad": "Ahmet",
+      "soyad": "Gök",
+      "tcKimlikNo": "234",
+      "eMail": "ahmet@gmail.com",
+      "dogumTarihi": "01.02.1990",
+      "iseBaslamaTarihi": "01.02.2020",
+      "gorev": "Yazılımcı",
+      "departman": 1,
+      "sifre": "123"
+    },
+    {
+      "id": 3,
+      "ad": "Mehmet",
+      "soyad": "Ulu",
+      "tcKimlikNo": "345",
+      "eMail": "mehmet@gmail.com",
+      "dogumTarihi": "01.03.1990",
+      "iseBaslamaTarihi": "01.03.2020",
+      "gorev": "Yazılımcı",
+      "departman": 1,
+      "sifre": "123"
+    },
+    {
+      "id": 4,
+      "ad": "Hasan",
+      "soyad": "Mut",
+      "tcKimlikNo": "456",
+      "eMail": "hasan@gmail.com",
+      "dogumTarihi": "01.04.1990",
+      "iseBaslamaTarihi": "01.04.2020",
+      "gorev": "Yazılımcı",
+      "departman": 1,
+      "sifre": "123"
+    },
+    {
+      "id": 5,
+      "ad": "Hüseyin",
+      "soyad": "Bir",
+      "tcKimlikNo": "567",
+      "eMail": "huseyin@gmail.com",
+      "dogumTarihi": "01.05.1990",
+      "iseBaslamaTarihi": "01.05.2020",
+      "gorev": "Yazılımcı",
+      "departman": 1,
+      "sifre": "123"
+    }
+  ]
+}
