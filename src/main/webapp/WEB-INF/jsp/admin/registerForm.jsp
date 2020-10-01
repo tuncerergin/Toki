@@ -13,6 +13,7 @@
 
 </head>
 <body>
+<%@include file='../header.jsp' %>
 <div id="content" class="container">
     <div class="simple-login-container  col-md-4 offset-md-4">
         <div class="row">

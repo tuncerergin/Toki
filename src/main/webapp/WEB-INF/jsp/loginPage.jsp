@@ -16,7 +16,7 @@
     <div class="row pt-4 ">
 
         <div class="col-md-4"></div>
-        <div class="col-md-4 shadow m-4"
+        <div class="col-md-4 shadow m-4 p-4"
              style="backdrop-filter: blur(20px); background-color: rgba(255,255,255,.3); border-radius: 8px !important;">
             <div class="row">
                 <div class="col-md-3"></div>
@@ -48,21 +48,21 @@
                 </c:when>
             </c:choose>
             <form:form action="/login" method="POST">
-                <div class="row">
+                <div class="row p-2">
                     <div class="col-md-12 form-group">
                         <label class="d-block">Kullanıcı adı: <input type="email" name="username"
                                                                      style="border-radius: 24px;"
                                                                      class="form-control"/> </label>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row p-2">
                     <div class="col-md-12 form-group">
                         <label class="d-block">Şifre: <input type="password" name="password"
                                                              style="border-radius: 24px;"
                                                              class="form-control"/></label>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row p-2">
                     <div class="col-md-12 form-group">
                         <input type="submit" class="btn btn-primary btn-block btn-login" style="border-radius: 24px;"
                                value="Giriş Yap">

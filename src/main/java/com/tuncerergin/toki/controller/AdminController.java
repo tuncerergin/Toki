@@ -45,7 +45,7 @@ public class AdminController {
      */
     @GetMapping("/")
     public String adminIndex() {
-        return "departman";
+        return "admin/departman";
     }
 
     /**
@@ -79,7 +79,7 @@ public class AdminController {
     public String anasayfa(Model model) {
         List<Departman> departman = departmanRepository.findAll();
         model.addAttribute("departments", departman);
-        return "admin";
+        return "admin/admin";
     }
 
     /**
@@ -97,7 +97,7 @@ public class AdminController {
         Optional<Departman> departman = departmanRepository.findById(id);
         model.addAttribute("persons", persons);
         model.addAttribute("departman", departman.get());
-        return "personelList";
+        return "admin/personelList";
 
     }
 
@@ -124,7 +124,7 @@ public class AdminController {
         }
         model.addAttribute("amirList", depPerList);
         model.addAttribute("departman", departman);
-        return "departman";
+        return "admin/departman";
     }
 
     /**
@@ -138,7 +138,7 @@ public class AdminController {
     public String addDepartman(Model model) {
         Departman departman = new Departman();
         model.addAttribute("departman", departman);
-        return "departman";
+        return "admin/departman";
     }
 
     /**
@@ -175,7 +175,7 @@ public class AdminController {
     public String personelupdate(@RequestParam("personelId") Integer id, Model model) {
         model.addAttribute("now", java.time.LocalDate.now());
         model.addAttribute("personel", personelRepository.findById(id).get());
-        return "personel";
+        return "admin/personel";
     }
 
     /**
@@ -233,7 +233,7 @@ public class AdminController {
         model.addAttribute("departmanId", departmanId);
         model.addAttribute("personel", personel);
 
-        return "registerForm";
+        return "admin/registerForm";
     }
 
     /**
@@ -252,7 +252,7 @@ public class AdminController {
         String email = personel.getEmail();
         if (personelRepository.findByEmail(email) != null) {
             model.addAttribute("exist", true);
-            return "registerForm";
+            return "admin/registerForm";
         }
 
         personel.setDepartman(departmanRepository.getOne(id));
@@ -264,6 +264,6 @@ public class AdminController {
         personel.setRole(roles);
         personelRepository.save(personel);
         model.addAttribute("success", true);
-        return "registerForm";
+        return "admin/registerForm";
     }
 }
