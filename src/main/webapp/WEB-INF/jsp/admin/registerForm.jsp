@@ -14,8 +14,9 @@
 </head>
 <body>
 <%@include file='../header.jsp' %>
-<div id="content" class="container">
-    <div class="simple-login-container  col-md-4 offset-md-4">
+<div class="container-fluid">
+    <%@include file='../sidebar.jsp' %>
+    <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
         <div class="row">
             <div class="col-lg-12 col-md-12 col-sm-12">
                 <c:choose>
@@ -47,73 +48,71 @@
                 </c:choose>
             </div>
         </div>
+        <div class="col-md-4 offset-md-4">
+            <div class="card justify-content-center">
+                <div class="card-header">
+                    Personel Kayıt Formu
+                </div>
+                <div class="card-body">
+                    <c:url var="personelKayitLink" value="/admin/personelKayit">
+                        <c:param name="departmanId" value="${departmanId}"/>
+                    </c:url>
+                    <form:form action="${personelKayitLink}" modelAttribute="personel" method="post">
+                        <div class="form-group">
+                            <label for="ad">Adı</label>
+                            <form:input type="input" placeholder="Adı" id="ad" path="ad" cssClass="form-control"
+                                        value="${ad}"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="soyad">Soyadı</label>
+                            <form:input type="input" placeholder="Soyadı" path="soyad" cssClass="form-control"
+                                        value="${soyad}"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="tcKimlikNo">TC Kimlik No</label>
+                            <form:input type="input" placeholder="TC Kimlik No" path="tcKimlikNo"
+                                        cssClass="form-control"
+                                        value="${tcKimlikNo}"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="dogumTarihi">Doğum Tarihi</label>
+                            <form:input type="date" placeholder="Doğum Tarihi" path="dogumTarihi"
+                                        cssClass="form-control"
+                                        max="${now}"
+                                        value="${dogumTarihi}"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">eMail</label>
+                            <form:input type="email" placeholder="Email" path="email" cssClass="form-control"
+                                        value="${email}"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Şifre</label>
+                            <form:input type="password" placeholder="Şifre" path="password" cssClass="form-control"
+                                        value="${password}"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="iseBaslamaTarihi">İşe Başlama Tarihi</label>
+                            <form:input type="date" placeholder="İşe Başlama Tarihi" path="iseBaslamaTarihi"
+                                        cssClass="form-control"
+                                        value="${iseBaslamaTarihi}"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="gorevi">Görevi</label>
+                            <form:input type="input" placeholder="Görevi" path="gorevi" cssClass="form-control"
+                                        value="${gorevi}"/>
+                        </div>
+                        <div class="form-group mt-2">
+                            <a href="${pageContext.request.contextPath}/admin/listPersons?departmanId=${departmanId}"
+                               class="rounded btn btn-primary"><< Geri</a>
+                            <input type="submit" value="Kaydet" class="btn btn-warning float-right">
 
-        <h2>Personel Kayıt Formu</h2>
-        <c:url var="personelKayitLink" value="/admin/personelKayit">
-            <c:param name="departmanId" value="${departmanId}"/>
-        </c:url>
-        <form:form action="${personelKayitLink}" modelAttribute="personel" method="post">
-
-            <div class="row">
-                <div class="col-md-12 form-group">
-                    <form:input type="input" placeholder="Ad" path="ad" cssClass="form-control" value="${ad}"/>
+                        </div>
+                    </form:form>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-md-12 form-group">
-                    <form:input type="input" placeholder="Soyadı" path="soyad" cssClass="form-control"
-                                value="${soyad}"/>
-
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-12 form-group">
-                    <label for="gorevi">TC Kimlik No</label>
-                    <form:input type="input" placeholder="TC Kimlik No" path="tcKimlikNo" cssClass="form-control"
-                                value="${tcKimlikNo}"/>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-12 form-group">
-                    <label for="gorevi">Doğum Tarihi</label>
-                    <form:input type="date" placeholder="Doğum Tarihi" path="dogumTarihi" cssClass="form-control"
-                                max="${now}"
-                                value="${dogumTarihi}"/>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-12 form-group">
-                    <form:input type="email" placeholder="Email" path="email" cssClass="form-control" value="${email}"/>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-12 form-group">
-                    <form:input type="password" placeholder="Şifre" path="password" cssClass="form-control"
-                                value="${password}"/>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-12 form-group">
-                    <label for="gorevi">İşe Başlama Tarihi</label>
-                    <form:input type="date" placeholder="İşe Başlama Tarihi" path="iseBaslamaTarihi"
-                                cssClass="form-control"
-                                value="${iseBaslamaTarihi}"/>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-12 form-group">
-                    <form:input type="input" placeholder="Görevi" path="gorevi" cssClass="form-control"
-                                value="${gorevi}"/>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-12 form-group">
-                    <input type="submit" class="btn btn-primary btn-block btn-login" value="Kaydet">
-                </div>
-            </div>
-        </form:form>
-    </div>
+        </div>
+    </main>
 </div>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.min.js"
         integrity="sha384-oesi62hOLfzrys4LxRF63OJCXdXDipiYWBnvTl9Y9/TRlw5xlKIEHpNyvvDShgf/"

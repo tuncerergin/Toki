@@ -12,7 +12,7 @@
 <body>
 <%@include file='../header.jsp' %>
 <div class="container-fluid">
-
+    <%@include file='../sidebar.jsp' %>
     <div class="row justify-content-md-center">
         Merhaba ${amir.ad} ${amir.soyad}
     </div>
