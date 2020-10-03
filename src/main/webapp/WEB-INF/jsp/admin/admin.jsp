@@ -4,7 +4,7 @@
 <%@ taglib prefix="th" uri="http://java.sun.com/jsp/jstl/core" %>
 <html>
 <head>
-    <title>Welcome</title>
+    <title>Admin</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css"
           integrity="sha384-r4NyP46KrjDleawBgD5tp8Y7UzmLA05oM1iAEQ17CSuDqnUK2+k9luXQOfXJCJ4I" crossorigin="anonymous">
     <link rel="stylesheet" href="../assets/css/dashboard.css">
@@ -52,7 +52,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/personel/istatistik">
+                    <a class="nav-link" href="/admin/istatistik">
                         <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-bar-chart-fill"
                              fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                             <rect width="4" height="5" x="1" y="10" rx="1"></rect>
