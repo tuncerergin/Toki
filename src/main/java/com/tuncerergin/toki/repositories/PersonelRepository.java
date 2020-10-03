@@ -15,5 +15,10 @@ public interface PersonelRepository extends JpaRepository<Personel, Integer> {
     @Query("Select per from Personel per " +
             "INNER JOIN Departman dep on per.departman=dep " +
             "WHERE dep.id=?1")
-    List<Personel> findByDepartmanAmir(Integer departmanId);
+    List<Personel> findPersonelByDepartman(Integer departmanId);
+
+    @Query("Select per from Personel per " +
+            "INNER JOIN Departman dep on per=dep.amir " +
+            "WHERE dep.id=?1")
+    Personel findByAmirByDepartman(Integer departmanId);
 }

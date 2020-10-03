@@ -183,15 +183,7 @@ public class AdminController {
     public String updateDepartman(@RequestParam("departmanId") Integer id, Model model) {
 
         Departman departman = departmanRepository.getOne(id);
-        List<Personel> depPerList = personelRepository.findByDepartmanAmir(id);
-        if (departman.getAmir() != null) {
-            //Departman yeni oluşturulduğunda eski amir olamayacağından eski amirin rolü güncellenemez.
-            Personel amir = departman.getAmir();
-            List<Role> roles = new ArrayList<>();
-            roles.add(roleRepository.getOne("PERSONEL"));
-            amir.setRole(roles);
-            personelRepository.save(amir);
-        }
+        List<Personel> depPerList = personelRepository.findPersonelByDepartman(id);
         model.addAttribute("amirList", depPerList);
         model.addAttribute("departman", departman);
         return "admin/departman";
@@ -222,8 +214,20 @@ public class AdminController {
      */
     @PostMapping("/saveDepartman")
     public String saveDepartman(@ModelAttribute("departman") Departman departman) {
+
+        /*  Varsa eski amirin rolünü PERSONEL yap
+         *  Departmanı kaydet veya güncelle
+         *  varsa yeni seçilne amirin rolünü AMIR yap
+         */
+        Personel eskiAmir = personelRepository.findByAmirByDepartman(departman.getId());
+        if (eskiAmir != null) {
+            List<Role> role = new ArrayList<>();
+            role.add(roleRepository.getOne("PERSONEL"));
+            eskiAmir.setRole(role);
+            personelRepository.save(eskiAmir);
+        }
         departmanRepository.save(departman);
-        if (departman.getAmir() != null) {
+        if (departman.getAmir() != null) {  //Departman yeni oluşturulduğunda eski amir olamayacağından eski amirin rolü güncellenemez.
             Personel amir = departman.getAmir();
             List<Role> roles = new ArrayList<>();
             roles.add(roleRepository.getOne("AMIR"));
@@ -243,6 +247,7 @@ public class AdminController {
      */
     @GetMapping("/personelupdate")
     public String personelupdate(@RequestParam("personelId") Integer id, Model model) {
+
         model.addAttribute("now", java.time.LocalDate.now());
         model.addAttribute("personel", personelRepository.findById(id).get());
         return "admin/personel";

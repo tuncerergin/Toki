@@ -38,8 +38,7 @@
                                 </div>
                             </th:if>
                             <div class="form-group mt-2">
-
-                                <a href="${pageContext.request.contextPath}/admin/listPersons?departmanId=${departman.id}"
+                                <a href="${pageContext.request.contextPath}${departman.id=="0"?'/admin/departman':"/admin/listPersons?departmanId="}${departman.id=="0"?'':departman.id}"
                                    class="rounded btn btn-primary"><< Geri</a>
                                 <input type="submit" value="Kaydet" class="btn btn-warning float-right">
                             </div>
