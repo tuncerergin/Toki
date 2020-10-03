@@ -1,6 +1,7 @@
 <%@ page pageEncoding="UTF-8" %>
 <%@ taglib prefix="security" uri="http://www.springframework.org/security/tags" %>
 <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow mb-2">
+
     <span class="navbar-brand col-md-3 col-lg-2 mr-0 px-3">
         <security:authorize access="isAuthenticated()">
             <security:authentication property="principal.authorities" var="authorities"/>
@@ -19,7 +20,7 @@
     <ul class="navbar-nav px-3">
         <li class="nav-item text-nowrap">
             <form:form action="${pageContext.request.contextPath}/logout" method="POST">
-                <button type="submit" class="btn btn-danger" style="float: right">
+                <button type="submit" class="btn btn-dark" style="float: right">
                     <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-box-arrow-left"
                          fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd"
