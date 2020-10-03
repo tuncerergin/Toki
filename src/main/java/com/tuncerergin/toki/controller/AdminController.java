@@ -1,6 +1,10 @@
 package com.tuncerergin.toki.controller;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
+import com.tuncerergin.toki.dto.PersonelDTO;
 import com.tuncerergin.toki.entity.Departman;
 import com.tuncerergin.toki.entity.Personel;
 import com.tuncerergin.toki.entity.Role;
@@ -16,9 +20,11 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 /**
@@ -55,20 +61,6 @@ public class AdminController {
      *
      * @throws IOException
      */
-    @GetMapping("/getData")
-    private static void getEmployees() throws IOException {
-        final String uri = "http://my-json-server.typicode.com/tuncerergin/Toki/personel";
-
-        RestTemplate restTemplate = new RestTemplate();
-        String result = restTemplate.getForObject(uri, String.class);
-        // ResponseEntity<Personel> personeller = restTemplate.getForEntity(uri, Personel.class);
-
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        Object[] personeller = objectMapper.readValue(result, Object[].class);
-        System.out.println(Arrays.toString(personeller));
-
-    }
 
     /**
      * departmanları görüntülemeye yarayan metod
@@ -81,8 +73,84 @@ public class AdminController {
     public String anasayfa(Model model) {
         List<Departman> departman = departmanRepository.findAll();
         model.addAttribute("departments", departman);
+        if (!model.containsAttribute("message"))
+            model.addAttribute("message", null);
+        if (!model.containsAttribute("exception"))
+            model.addAttribute("exception", null);
         return "admin/admin";
     }
+
+    @RequestMapping(value = "/getData",
+            method = RequestMethod.POST,
+            headers = "Accept=application/json"
+    )
+    private String getPersonelfromNetwork(@RequestParam(value = "url") String url, Model model) {
+        RestTemplate restTemplate = new RestTemplate();
+        String result;
+        try {
+            result = restTemplate.getForObject(url, String.class);
+        } catch (Exception e) {
+            model.addAttribute("message", "Bilinmeyen ağ hatası");
+            model.addAttribute("exception", e.getMessage());
+            return anasayfa(model);
+        }
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        objectMapper.setVisibilityChecker(VisibilityChecker.Std.defaultInstance().withFieldVisibility(JsonAutoDetect.Visibility.ANY));
+        PersonelDTO[] personelDtoList;
+        try {
+            personelDtoList = objectMapper.readValue(result, PersonelDTO[].class);
+        } catch (Exception e) {
+            model.addAttribute("message", "Json mapping hatası");
+            model.addAttribute("exception", e.getMessage());
+            return anasayfa(model);
+        }
+
+        List<Personel> personelList = new ArrayList<>();
+        for (PersonelDTO personelDto : personelDtoList) {
+            Departman departman;
+            try {
+                departman = departmanRepository.findById(personelDto.getDepartman()).get();
+            } catch (Exception e) {
+                model.addAttribute("message", personelDto.getDepartman() + " Id numaralı departman bulunamadı");
+                model.addAttribute("exception", e.getMessage());
+                return anasayfa(model);
+            }
+            List<Role> roles = new ArrayList<>();
+            roles.add(roleRepository.getOne("PERSONEL"));
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy").withLocale(new Locale("tr-TR"));
+
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+            Personel person = new Personel();
+            person.setId(0);
+            person.setAd(personelDto.getAd());
+            person.setSoyad(personelDto.getSoyad());
+            person.setTcKimlikNo(Long.parseLong(personelDto.getTcKimlikNo()));
+            person.setEmail(personelDto.getEMail());
+            person.setPassword(encoder.encode(personelDto.getSifre()));
+            person.setDogumTarihi(LocalDate.parse(personelDto.getDogumTarihi(), formatter));
+            person.setIseBaslamaTarihi(LocalDate.parse(personelDto.getIseBaslamaTarihi(), formatter));
+            person.setGorevi(personelDto.getGorev());
+            person.setDepartman(departman);
+            person.setRole(roles);
+
+            personelList.add(person);
+        }
+        try {
+            personelRepository.saveAll(personelList);
+        } catch (Exception e) {
+            model.addAttribute("message", "Verileri kaydederken bir hata oluştu");
+            model.addAttribute("exception", e.getMessage());
+            return anasayfa(model);
+        }
+        model.addAttribute("message", "Başarılı");
+
+        return anasayfa(model);
+    }
+
 
     /**
      * Herhangi bir deparman seçilince o departmana ait bilgileri ve kilişleri görüntülemeye yarayan metod
