@@ -12,6 +12,7 @@ import com.tuncerergin.toki.repositories.DepartmanRepository;
 import com.tuncerergin.toki.repositories.PersonelRepository;
 import com.tuncerergin.toki.repositories.RoleRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -71,7 +72,7 @@ public class AdminController {
      */
     @GetMapping("/departman")
     public String anasayfa(Model model) {
-        List<Departman> departman = departmanRepository.findAll();
+        List<Departman> departman = departmanRepository.findAll(Sort.by(Sort.Direction.ASC, "adi"));
         model.addAttribute("departments", departman);
         if (!model.containsAttribute("message"))
             model.addAttribute("message", null);
