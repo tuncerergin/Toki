@@ -9,6 +9,7 @@ import com.tuncerergin.toki.entity.Departman;
 import com.tuncerergin.toki.entity.Personel;
 import com.tuncerergin.toki.entity.Role;
 import com.tuncerergin.toki.repositories.DepartmanRepository;
+import com.tuncerergin.toki.repositories.IzinRepository;
 import com.tuncerergin.toki.repositories.PersonelRepository;
 import com.tuncerergin.toki.repositories.RoleRepository;
 import lombok.AllArgsConstructor;
@@ -23,10 +24,7 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Admin yetkisi ile yapılabileceklerin kontrol edildiği controller sınıf.
@@ -46,6 +44,7 @@ public class AdminController {
     private final DepartmanRepository departmanRepository;
     private final PersonelRepository personelRepository;
     private final RoleRepository roleRepository;
+    private final IzinRepository izinRepository;
 
     /**
      * @return String yönlendirilecek sayfa ismi
@@ -342,4 +341,58 @@ public class AdminController {
         model.addAttribute("success", true);
         return "admin/registerForm";
     }
+
+    /**
+     * Adminin departmanlar ve personeller hakkında çeşitli istatikleri görüntülemesini sağlayan metod.
+     *
+     * @param model arayüze gönderilecek verileri içeren yapı.
+     * @return gösterilecek sayfa adı
+     * @Link /istatistik
+     */
+    @GetMapping("/istatistik")
+    public String getIstatistik(Model model) {
+        int toplamDepartmanSayisi = (int) departmanRepository.count();
+        List<Object[]> result = departmanRepository.findSumPersonByDepartman();
+        List<Long> sumPer = new ArrayList<Long>();
+        List<String> dep = new ArrayList<>();
+        for (Object[] object : result) {
+            sumPer.add((Long) object[0]);
+            dep.add("['" + object[1].toString().replace(" ", "','") + "']");
+        }
+
+        List<Double> avgYillikIzin = new ArrayList<>();
+        List<Double> avgRaporIzni = new ArrayList<>();
+        List<Double> avgMazeretIzni = new ArrayList<>();
+
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Europe/Istanbul"));
+        cal.setTime(new Date());
+
+        List<Object[]> res = izinRepository.getAvgIzinPerDepartman(cal.get(Calendar.YEAR));
+        List<String> departmanList = new ArrayList<>();
+        for (Object[] object : res) {
+            if (!departmanList.contains("['" + object[1].toString().replace(" ", "','") + "']")) {
+                departmanList.add("['" + object[1].toString().replace(" ", "','") + "']");
+            }
+
+            if (object[2].toString().equals("Yıllık İzin")) {
+                avgYillikIzin.add((Double) object[0]);
+            }
+            if (object[2].toString().equals("Rapor İzni")) {
+                avgRaporIzni.add((Double) object[0]);
+            }
+            if (object[2].toString().equals("Mazeret İzni")) {
+                avgMazeretIzni.add((Double) object[0]);
+            }
+        }
+
+        model.addAttribute("toplamDepartmanSayisi", toplamDepartmanSayisi);
+        model.addAttribute("sumPer", sumPer);
+        model.addAttribute("dep", dep);
+        model.addAttribute("departmanList", departmanList);
+        model.addAttribute("avgYillikIzin", avgYillikIzin);
+        model.addAttribute("avgRaporIzni", avgRaporIzni);
+        model.addAttribute("avgMazeretIzni", avgMazeretIzni);
+        return "admin/istatistik";
+    }
+
 }
