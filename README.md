@@ -1,13 +1,22 @@
 # Toki 
 
+## Test etmek için
+Url -> https://toki-proje-odevi.herokuapp.com/ <br>
+Personel kullanıcı adı: personel@gmail.com <br>
+Amir kullanıcı adı: amir@gmail.com <br>
+Admin kullanıcı adı: admin@gmail.com <br>
+Şifre: 123
+
+## İsterler
+
 Kurum içi kullanılacak personellerin izin işlemlerini yönetebilecekleri ve sistem admin i tarafından personel kaydı ve güncellemesi yapılabilecek bir uygulama geliştirilmesi istenmekte.
 
 Yapılacak uygulamada 3 farklı yetkilendirme bulunmalı,
 
 
-## Yetkiler
+### Yetkiler
 
-### Personel
+#### Personel
 
 - Personelin kalan izinlerini kontrol edebilmesi,
 - Yeni izin alabilmesi,
@@ -16,16 +25,16 @@ Yapılacak uygulamada 3 farklı yetkilendirme bulunmalı,
   - silme güncelleme işlemlerini yapabilsin,
   - Ancak izin amir tarafından onaylanır ya da iptal edilirse personelin değişiklik yapmasına izin verilmesin,
 - Personel onaylanan izinlerini amirine onaylatmak için sistemden rapor alabilsin,
-### Amir 
+#### Amir 
 - Personel izinlerini onaylama, reddetme
-### Admin
+#### Admin
 
 - Yeni personel kaydı, mevcut personellerin güncellenmesi silinmesi
 - Yeni birim tanımlanması ve güncellenmesi, birim amiri atanması
 - Birim amirlerinin yerlerine vekalet edecek personelleri atamaları ve vekalet süresi boyunca yetkilerinin bu personelde olması, vekalet süresi bitiminde tüm yetkilerin alınması
 - Sisteme harici bir API ile kullanıcı bilgilerinin alınması ve periyodik olarak bu API den yeni kullanıcı gelip gelmediğinin kontrol edilmesi
 
-## Yardımcı olabilecek bilgiler
+### Yardımcı olabilecek bilgiler
 
 - Sistemde yapılacak işlemler için authentication - authorization mekanizması esas alınmalı.
 
